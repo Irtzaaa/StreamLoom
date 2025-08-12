@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header">
+        <img src="{{ url_for('static', filename='uploads/' + user.profile_picture) }}" alt="Profile Picture" class="profile-pic-large" id="profile-pic" data-user-id="{{ user.id }}">
+        <h1>{{ user.firstname }} {{ user.lastname }}</h1>
+        <div class="profile-stats">
+            <div><span>{{ stats.followers }}</span> Followers</div>
+            <div><span>{{ stats.following }}</span> Following</div>
+            <div><span>{{ stats.videos }}</span> Videos</div>
+            <div><span>{{ stats.likes }}</span> Likes</div>
+        </div>
+        {% if user.id != current_user.id %}
+        <button class="action-btn follow-btn" data-user-id="{{ user.id }}"
+                data-followed="{% if current_user.following.filter_by(followed_id=user.id).first() %}true{% else %}false{% endif %}">
+            {% if current_user.following.filter_by(followed_id=user.id).first() %}Unfollow{% else %}Follow{% endif %}
+        </button>
+        {% endif %}
+        {% if user.id == current_user.id %}
+        <a href="{{ url_for('upload') }}" class="action-btn upload-btn">Upload Video</a>
+        {% endif %}
+    </div>
+    <div class="profile-videos">
+        <h2>Recent Videos</h2>
+        <div class="video-grid">
+            {% for video in videos %}
+            <div class="video-card">
+                <video controls class="video-player">
+                    <source src="{{ url_for('static', filename='uploads/' + video.filename) }}" type="video/mp4">
+                </video>
+                <p>{{ video.caption }}</p>
+                <p>{{ video.likes.count() }} Likes</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% if user.id == current_user.id %}
+    <div class="profile-pic-popup" id="profile-pic-popup" style="display: none;">
+        <form method="POST" action="{{ url_for('update_profile') }}" enctype="multipart/form-data" class="profile-pic-form">
+            <h3>Update Profile Picture</h3>
+            <input type="file" name="profile_picture" accept="image/jpeg,image/png" required>
+            <div class="popup-actions">
+                <button type="submit" class="action-btn">Upload</button>
+                <button type="button" class="action-btn cancel-btn" onclick="document.getElementById('profile-pic-popup').style.display='none'">Cancel</button>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

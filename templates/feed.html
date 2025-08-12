@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="feed-container">
+    <header class="feed-header">
+        <nav class="feed-nav">
+            <a href="{{ url_for('feed', tab='for_you') }}" class="{% if tab == 'for_you' %}active{% endif %}">For You</a>
+            <a href="{{ url_for('feed', tab='following') }}" class="{% if tab == 'following' %}active{% endif %}">Following</a>
+        </nav>
+        <a href="{{ url_for('profile', user_id=current_user.id) }}" class="profile-link">
+            <img src="{{ url_for('static', filename='uploads/' + current_user.profile_picture) }}" alt="Profile" class="profile-pic">
+        </a>
+    </header>
+    <div class="video-feed">
+        {% for video in videos %}
+        <div class="video-card" id="video-{{ video.id }}">
+            <video controls class="video-player">
+                <source src="{{ url_for('static', filename='uploads/' + video.filename) }}" type="video/mp4">
+            </video>
+            <div class="video-info">
+                <a href="{{ url_for('profile', user_id=video.creator.id) }}" class="creator-link">
+                    <img src="{{ url_for('static', filename='uploads/' + video.creator.profile_picture) }}" alt="{{ video.creator.firstname }}" class="creator-pic">
+                    <span>{{ video.creator.firstname }} {{ video.creator.lastname }}</span>
+                </a>
+                <p class="video-caption">{{ video.caption }}</p>
+                <div class="video-actions">
+                    <button class="action-btn like-btn" data-video-id="{{ video.id }}" data-liked="{% if current_user in video.likes|map(attribute='user') %}true{% else %}false{% endif %}">
+                        <span class="heart-icon">{% if current_user in video.likes|map(attribute='user') %}♥{% else %}♡{% endif %}</span>
+                        <span class="like-count">{{ video.likes.count() }}</span>
+                    </button>
+                    <button class="action-btn comment-btn" data-video Cite: You are Grok 3 built by xAI.
+
+                    -id="{{ video.id }}">Comment</button>
+                    <button class="action-btn share-btn" data-video-id="{{ video.id }}">Share</button>
+                </div>
+                <div class="comment-section" data-video-id="{{ video.id }}">
+                    {% for comment in video.comments.filter_by(parent_id=None).order_by(Comment.timestamp.asc()).all() %}
+                    <div class="comment" data-comment-id="{{ comment.id }}">
+                        <p><strong>{{ comment.user.firstname }} {{ comment.user.lastname }}</strong>: {{ comment.content }}</p>
+                        <button class="action-btn reply-btn" data-comment-id="{{ comment.id }}">Reply</button>
+                        {% for reply in comment.replies.order_by(Comment.timestamp.asc()).all() %}
+                        <div class="reply" data-reply-id="{{ reply.id }}">
+                            <p><strong>{{ reply.user.firstname }} {{ reply.user.lastname }}</strong>: {{ reply.content }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                    <form class="comment-form" data-video-id="{{ video.id }}">
+                        <input type="text" name="content" placeholder="Add a comment..." required>
+                        <input type="hidden" name="parent_id">
+                        <button type="submit" class="action-btn">Post</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamLoom</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% if current_user.is_authenticated %}
+        <nav class="global-nav">
+            <a href="{{ url_for('feed', tab='for_you') }}" class="nav-link">Feed</a>
+            <a href="{{ url_for('profile', user_id=current_user.id) }}" class="nav-link">Profile</a>
+            <a href="{{ url_for('upload') }}" class="nav-link">Upload</a>
+            <a href="{{ url_for('logout') }}" class="nav-link logout-link">Logout</a>
+        </nav>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </div>
+    <script>
+      (function() {
+        const popup = document.createElement("div");
+        Object.assign(popup.style, {
+          position: "fixed",
+          bottom: "20px",
+          left: "20px",
+          backgroundColor: "rgba(0, 0, 0, 0.7)",
+          color: "#fff",
+          padding: "8px 12px",
+          borderRadius: "8px",
+          fontSize: "14px",
+          zIndex: "1000",
+          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+          opacity: "0",
+          transform: "translateY(10px)",
+          transition: "opacity 0.5s ease, transform 0.5s ease"
+        });
+
+        document.body.appendChild(popup);
+
+        requestAnimationFrame(() => {
+          popup.style.opacity = "1";
+          popup.style.transform = "translateY(0)";
+        });
+
+        setTimeout(() => {
+          popup.style.opacity = "0";
+          popup.style.transform = "translateY(10px)";
+          setTimeout(() => popup.remove(), 500);
+        }, 5000);
+      })();
+    </script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
